@@ -1,7 +1,8 @@
 ﻿---
-layout: posttitle: "This is a Test post"
-date: 2015-08-23 23:21:11
-categories: Blog
+layout: post
+title:  "111"
+date:   2015-08-23 21:07:07
+categories: jekyll update
 ---
 
 #Head 1
