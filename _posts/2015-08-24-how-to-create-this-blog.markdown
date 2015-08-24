@@ -4,6 +4,7 @@ title:  "How to create this Blog"
 date:   2015-08-23 21:07:07
 categories: jekyll
 ---
+
 ## The final purpose
 1. add jekyll folders and files on my git page [repository](https://github.com/ray525/ray525.github.io)
 2. add markdown file in `_posts`, then your article will show on my [github page](http://ray525.github.io/)
