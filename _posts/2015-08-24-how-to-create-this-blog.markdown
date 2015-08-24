@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title:  "How to create this Blog"
 date:   2015-08-23 21:07:07
