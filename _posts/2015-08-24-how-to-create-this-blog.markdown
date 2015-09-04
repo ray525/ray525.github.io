@@ -48,7 +48,7 @@ ___
 
     > Generating... Liquid Exception: No such file or directory - python c:/Ruby200-x64/lib/ruby/gems/2.0.0/gems/pygments.rb-0.4.2/lib/pygments/mentos.py in 2013-04-22-yizeng-hello-world.md
 
-- install pygments
+    - install pygments
 
         * it seems pygments is installed by default when i install ruby. the folder is: `C:\Ruby22-x64\lib\ruby\gems\2.2.0\gems\pygments.rb-0.6.3\lib`
         * add `highlighter: pygments` at the end of _config.yml
