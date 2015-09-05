@@ -1,7 +1,7 @@
-﻿---
+---
 layout: post
 title:  "How to create this Blog"
-date:   2015-08-23 21:07:07
+date:   2015-09-05 21:07:07
 categories: jekyll
 ---
 ## The final purpose
@@ -12,31 +12,32 @@ categories: jekyll
 1. install ruby
 2. install DevKit
 3. setup mirror image
-    ```
-    $ gem sources --remove https://rubygems.org/
+	{% highlight ruby %}
+	$ gem sources --remove https://rubygems.org/
     $ gem sources -a https://ruby.taobao.org/
     $ gem sources -l
     *** CURRENT SOURCES ***
     
     https://ruby.taobao.org
     # 请确保只有 ruby.taobao.org
-    ```
+	{% endhighlight %}
 4. install package using  `gem` 
-
-    ```
-    gem install bundler
+	{% highlight ruby %}
+	gem install bundler
     gem install github-pages
     gem install jekyll
-    ```
+    {% endhighlight %}
     
 5. the i start myblog
-    ```
-    jekyll new myblog
+	{% highlight ruby %}
+	jekyll new myblog
     cd myblog
     jekyll serve
-    ```
+    {% endhighlight %}
     then there will be some folders and files are created by jekyll. and this folders and files will be holded by my github [repository](https://github.com/ray525/ray525.github.io)
-___
+	
+---
+
 6. encounter a problem:
     > Generating... Liquid Exception: No such file or directory - python c:/Ruby200-x64/lib/ruby/gems/2.0.0/gems/pygments.rb-0.4.2/lib/pygments/mentos.py in 2013-04-22-yizeng-hello-world.md
 
