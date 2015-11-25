@@ -13,6 +13,7 @@ categories: jekyll
 1. install ruby
 2. install DevKit
 3. setup mirror image
+
 	> gem sources -a https://ruby.taobao.org/
 	>  
     > gem sources -l
@@ -23,7 +24,8 @@ categories: jekyll
     >
     >请确保只有 ruby.taobao.org
 
-4. install package using  `gem` 
+4. install package using `gem` 
+
 	>gem install bundler
 	>
 	>gem install github-pages
@@ -31,13 +33,14 @@ categories: jekyll
 	>gem install jekyll
     
 5. the i start myblog
+
 	> jekyll new myblog
 	> 
 	> cd myblog
 	> 
 	> jekyll serve
-
- 	then there will be some folders and files are created by jekyll. and this folders and files will be holded by my github [repository](https://github.com/ray525/ray525.github.io)
+	
+	then there will be some folders and files are created by jekyll. and this folders and files will be holded by my github [repository](https://github.com/ray525/ray525.github.io)
 
 6. encounter a problem:
 
@@ -50,10 +53,34 @@ categories: jekyll
         * but i have run the following command: `gem install pygments.rb`, and restart the computer
 
 	> Please add the following to your Gemfile to avoid polling for changes:
- gem 'wdm', '>= 0.1.0' if Gem.win_platform?
+ 	gem 'wdm', '>= 0.1.0' if Gem.win_platform?
     
     - instal wdm
-    	> gem install wdm
+		<pre><code>gem install wdm</code></pre>
+
+## Test C code
+
+	#! /usr/bin/env python
+	#coding=utf-8
+	class Link:
+	    def __init__(self,value,next = None):
+	        self.value = value
+	        self.next = next
+	
+	    def show(self):
+	        while self is not None:
+	            print(self.value)
+	            self = self.next
+	            
+	    def insert(self,value):
+	        while self.next is not None:
+	            self = self.next
+	        self.next = Link(value)
+	
+	node1 = Link(0)
+	for x in range(5):
+	    node1.insert(x)    
+	node1.show()
     
 ## Reference
 1. [Setup Jekyll on Windows](http://yizeng.me/2013/05/10/setup-jekyll-on-windows/#install-ruby) (*there is a troubleshooting section*)
