@@ -16,7 +16,7 @@ categories: gdb
 
 ### 1. debug the code in [shared library](http://visualgdb.com/gdbreference/commands/sharedlibrary)
     
-```gdb
+```
 b main
 r
 info sharedlibrary
