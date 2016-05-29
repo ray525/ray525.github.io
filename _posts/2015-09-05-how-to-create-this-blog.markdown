@@ -1,9 +1,15 @@
 ---
 layout: post
 title:  "How to create this Blog"
-date:   2015-09-05 21:07:07
+date:   2015-09-05 21:07:07l
 categories: jekyll
 ---
+
+* content
+{:toc}
+
+
+
 
 ## The final purpose
 1. add jekyll folders and files on my git page [repository](https://github.com/ray525/ray525.github.io)

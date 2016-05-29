@@ -8,6 +8,10 @@ categories: gdb
 * content
 {:toc}
 
+
+
+
+
 ## 1. Debug on the child process
 
 ### 1. debug the code in [shared library](http://visualgdb.com/gdbreference/commands/sharedlibrary)

@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "JavaScript 面向对象"
+title:  "[转]JavaScript 面向对象"
 date:   2015-06-15 14:06:05
 categories: JavaScript
 excerpt: JavaScript 面向对象的技术
@@ -10,6 +10,10 @@ excerpt: JavaScript 面向对象的技术
 {:toc}
 
 本文为慕课网 [JavaScript深入浅出](http://www.imooc.com/learn/277) 笔记。
+
+
+
+
 
 ## 概念
 

@@ -1,27 +1,56 @@
-# Site settings
-title: Rainbow
-email: zhourui86525@163.com.com
-description: 简单伴着简单，幸福就是这样
-# > # this means to ignore newlines until "baseurl:"
-#   Write an awesome description for your new site here. You can edit this
-#   line in _config.yml. It will appear in your document head meta (for
-#   Google search results) and in your feed.xml site description.
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely need to edit after that.
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'jekyll serve'. If you change this file, please restart the server process.
 
-# baseurl: "" # the subpath of your site, e.g. /blog/
-# url: "http://yourdomain.com" # the base hostname & protocol for your site
-# twitter_username: jekyllrb
-github_username:  ray525
+# Site settings
+title: Ray
+brief-intro: Front-end Dev Engineer
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "http://ray525.github.io" # the base hostname & protocol for your site
+
 permalink: /:year/:month/:day/:title/
+
+# other links
+github_username:  ray525
+email: zhourui86525@163.com
+weibo_username: ranger_ray
+
+description_index: 记录 成长
+description_footer: 本站记录我前端之旅的沿途风景！
+description_welcome: Welcome to Ray's Blog!
+# comments
+# two ways to comment, only choose one, and use your own short name
+# 两种评论插件，选一个就好了，使用自己的 short_name
+duoshuo_shortname: rangerray
+#disqus_shortname: gaohaoyang
+
+# statistic analysis 统计代码
+# 百度统计 id，将统计代码替换为自己的百度统计id，即
+# hm.src = "//hm.baidu.com/hm.js?xxxxxxxxxxxx";
+# xxxxx字符串
+baidu_tongji_id: b1f14d6f254d71def6d4be17b852f9e1
+#google_analytics_id: UA-72449510-4 # google 分析追踪id
 
 # Build settings
 markdown: kramdown
 
-gems: [jekyll-paginate]
-paginate: 10
-paginate_path: "page:num"
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
 
-# highlight
-# 本地用rouge, github上用pygments
-# highlighter: pygments
-# highlighter: rouge
-# highlighter: false
+# port
+# port: 1234
+
+# url
+category_dir: category/
+tag_dir: tag/
+
+# excerpt
+excerpt_separator: "\n\n\n\n"
+
+# paginate
+gems: [jekyll-paginate]
+paginate: 5
