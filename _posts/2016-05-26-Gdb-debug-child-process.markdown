@@ -12,11 +12,11 @@ categories: gdb
 
 ### 1. debug the code in [shared library](http://visualgdb.com/gdbreference/commands/sharedlibrary)
 
-{% highlight bash linenos %}
+```
 b main
 r
 info sharedlibrary
-{% endhighlight %}
+```
 
 this will make program stoping at the main function, it means the shared library has been loaded, then you can get the source code info in the shared library when you set breakpoint on that.
 
