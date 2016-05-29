@@ -4,6 +4,7 @@ title:  "[转]JavaScript 面向对象"
 date:   2015-06-15 14:06:05
 categories: JavaScript
 excerpt: JavaScript 面向对象的技术
+tags: OOP
 ---
 
 * content
