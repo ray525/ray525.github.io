@@ -1,85 +1,96 @@
+---
+layout: post
+title:  "gdb on child process"
+date:   2016-05-26 15:50:00
+categories: gdb 
+---
+
+* content
+{:toc}
+
 ## 1. Debug on the child process
+
 ### 1. debug the code in [shared library](http://visualgdb.com/gdbreference/commands/sharedlibrary)
-    
-```
+
+{% highlight bash linenos %}
 b main
 r
 info sharedlibrary
-```
-    this will make program stoping at the main function, it means the shared library has been loaded, then you can get the source code info in the shared library when you set breakpoint on that.
+{% endhighlight %}
+
+this will make program stoping at the main function, it means the shared library has been loaded, then you can get the source code info in the shared library when you set breakpoint on that.
 
 ### 2. debug on the [child process](https://sourceware.org/gdb/onlinedocs/gdb/Forks.html)
 
-```
-void VddkManager::initialize()
-{
-    WRITE_LOG1("VddkManager::initialize() begin.\n");
-    
-    const char *libDir = (isSAN_ ? cfg_.libDir : NULL);
-    const char *configFile = cfg_.configPath;
-    
-    WRITE_LOG1("call VixDiskLib_InitEx().\n");
-    if (cfg_.isRemote) {
-        vixError_ = VixDiskLib_InitEx(VIXDISKLIB_VERSION_MAJOR,
-                                      VIXDISKLIB_VERSION_MINOR,
-                                      logFunc, logFunc, logFunc,
-                                      libDir, configFile);
-        CHECK_AND_THROW(vixError_);
+	void VddkManager::initialize()
+	{
+		WRITE_LOG1("VddkManager::initialize() begin.\n");
+		
+		const char *libDir = (isSAN_ ? cfg_.libDir : NULL);
+		const char *configFile = cfg_.configPath;
+		
+		WRITE_LOG1("call VixDiskLib_InitEx().\n");
+		if (cfg_.isRemote) {
+			vixError_ = VixDiskLib_InitEx(VIXDISKLIB_VERSION_MAJOR,
+										  VIXDISKLIB_VERSION_MINOR,
+										  logFunc, logFunc, logFunc,
+										  libDir, configFile);
+			CHECK_AND_THROW(vixError_);
 
-    } else {
-        vixError_ = VixDiskLib_InitEx(VIXDISKLIB_VERSION_MAJOR,
-                                      VIXDISKLIB_VERSION_MINOR,
-                                      NULL, NULL, NULL,
-                                      NULL, NULL);
-        CHECK_AND_THROW(vixError_);
-    }
+		} else {
+			vixError_ = VixDiskLib_InitEx(VIXDISKLIB_VERSION_MAJOR,
+										  VIXDISKLIB_VERSION_MINOR,
+										  NULL, NULL, NULL,
+										  NULL, NULL);
+			CHECK_AND_THROW(vixError_);
+		}
 
-    WRITE_LOG1("VddkManager::initialize() end.\n");
-}
-```
-```
-set follow-fork-mode child
-b vddk_manager.cpp:106 
-c
-info sharedlibrary
-```
+		WRITE_LOG1("VddkManager::initialize() end.\n");
+	}
+
+	
+	set follow-fork-mode child
+	b vddk_manager.cpp:106 
+	c
+	info sharedlibrary
+
     
-    **Note:** you need run the command `set follow-fork-mode child` first, then set the break point. only if you run the command in this order, the breakpoint can set on the child process.
+**Note:** you need run the command `set follow-fork-mode child` first, then set the break point. only if you run the command in this order, the breakpoint can set on the child process.
 
 ### 3. debug on the parent process again.
 because the the api(`VixDiskLib_InitEx`) in vmware will use `fork` to  create process, but we just want to debug our code, so we need to set the mode to parent before call `VixDiskLib_InitEx`. 
 
-```
-void VmdkManager::open()
-{
-    WRITE_LOG1("VmdkManager::open() begin\n");
-    const VixDiskLibConnection conn = vddkMgr_.getConnection();
-    const ConfigData& cfg = vddkMgr_.getConfig();
-    assert(conn != NULL);
-    
-    uint32 openFlags = 0;
-    if (vddkMgr_.isReadOnly()) {
-        openFlags |= VIXDISKLIB_FLAG_OPEN_READ_ONLY;
-    }
 
-    WRITE_LOG1("call VixDiskLib_Open().\n");
-    {
-        //bool isExclusive = true;
-        //ScopedResourceLock lk
-        //(vddkMgr_.getConfig().lockResourceName, isExclusive);
-        WRITE_LOG0("VmdkManager::open() begin\n");
-        vixError_ = VixDiskLib_Open(conn, cfg.vmdkPath, openFlags, &handle_);
-        WRITE_LOG0("VmdkManager::open() end\n");
-    }
-    CHECK_AND_THROW(vixError_);
-    WRITE_LOG1("VmdkManager::open() end\n");
-}
-```
-```
-set follow-fork-mode parent
-b vddk_manager.cpp:361 
-c
-```
+	void VmdkManager::open()
+	{
+		WRITE_LOG1("VmdkManager::open() begin\n");
+		const VixDiskLibConnection conn = vddkMgr_.getConnection();
+		const ConfigData& cfg = vddkMgr_.getConfig();
+		assert(conn != NULL);
+		
+		uint32 openFlags = 0;
+		if (vddkMgr_.isReadOnly()) {
+			openFlags |= VIXDISKLIB_FLAG_OPEN_READ_ONLY;
+		}
+
+		WRITE_LOG1("call VixDiskLib_Open().\n");
+		{
+			//bool isExclusive = true;
+			//ScopedResourceLock lk
+			//(vddkMgr_.getConfig().lockResourceName, isExclusive);
+			WRITE_LOG0("VmdkManager::open() begin\n");
+			vixError_ = VixDiskLib_Open(conn, cfg.vmdkPath, openFlags, &handle_);
+			WRITE_LOG0("VmdkManager::open() end\n");
+		}
+		CHECK_AND_THROW(vixError_);
+		WRITE_LOG1("VmdkManager::open() end\n");
+	}
+
+
+	set follow-fork-mode parent
+	b vddk_manager.cpp:361 
+	c
+
 
 ### 4. [show the process](https://sourceware.org/gdb/onlinedocs/gdb/SVR4-Process-Information.html) info in gdb
 
@@ -103,67 +114,67 @@ vmdkbap segment fault, because it need libcrypto.so.0.9.8, but it actually link 
 
 2. show the soname of the shared library, the soname will show in the `ldd`
 
-```
-# readelf -d libcrypto.so.1.0.1e
-Dynamic section at offset 0x1d23b0 contains 28 entries:
-  Tag        Type                         Name/Value
- 0x0000000000000001 (NEEDED)             Shared library: [libdl.so.2]
- 0x0000000000000001 (NEEDED)             Shared library: [libz.so.1]
- 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]
- 0x000000000000000e (SONAME)             Library soname: [libcrypto.so.10]
- 0x0000000000000010 (SYMBOLIC)           0x0
- 0x000000000000000c (INIT)               0x3ba3a69568
- 0x000000000000000d (FINI)               0x3ba3b5dbe8
- 0x000000006ffffef5 (GNU_HASH)           0x3ba3a001f0
- 0x0000000000000005 (STRTAB)             0x3ba3a21da8
- 0x0000000000000006 (SYMTAB)             0x3ba3a09220
- 0x000000000000000a (STRSZ)              78495 (bytes)
- 0x000000000000000b (SYMENT)             24 (bytes)
- 0x0000000000000003 (PLTGOT)             0x3ba3dd2fe8
- 0x0000000000000002 (PLTRELSZ)           2664 (bytes)
- 0x0000000000000014 (PLTREL)             RELA
- 0x0000000000000017 (JMPREL)             0x3ba3a68b00
- 0x0000000000000007 (RELA)               0x3ba3a37228
- 0x0000000000000008 (RELASZ)             202968 (bytes)
- 0x0000000000000009 (RELAENT)            24 (bytes)
- 0x000000006ffffffc (VERDEF)             0x3ba3a37140
- 0x000000006ffffffd (VERDEFNUM)          4
- 0x000000006ffffffe (VERNEED)            0x3ba3a371a8
- 0x000000006fffffff (VERNEEDNUM)         2
- 0x000000006ffffff0 (VERSYM)             0x3ba3a35048
- 0x000000006ffffff9 (RELACOUNT)          8446
- 0x000000006ffffdf8 (CHECKSUM)           0x5b6c6280
- 0x000000006ffffdf5 (GNU_PRELINKED)      2015-10-16T19:35:45
- 0x0000000000000000 (NULL)               0x0
- 
- # ldd vmdkbkp
-linux-vdso.so.1 =>  (0x00007fffebbff000)
-libvmdkbkp.so => /root/vmbkp-master/vmdkbkp/src/./libvmdkbkp.so (0x00007fe9f1298000)
-libvixDiskLib.so.5 => /usr/lib/vmware-vix-disklib/lib64/libvixDiskLib.so.5 (0x00007fe9f0eaa000)
-libboost_iostreams-mt.so.1.48.0 => /usr/lib64/libboost_iostreams-mt.so.1.48.0 (0x00007fe9f0c7e000)
-librt.so.1 => /lib64/librt.so.1 (0x0000003344c00000)
-libcrypto.so.10 => /usr/lib64/libcrypto.so.10 (0x0000003ba3a00000)
-libboost_thread-mt.so.1.48.0 => /usr/lib64/libboost_thread-mt.so.1.48.0 (0x00007fe9f0a63000)
-libpthread.so.0 => /lib64/libpthread.so.0 (0x00000036eee00000)
-libstdc++.so.6 => /usr/lib64/libstdc++.so.6 (0x0000003bbde00000)
-libm.so.6 => /lib64/libm.so.6 (0x0000003bb2e00000)
-libgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x0000003bbda00000)
-libc.so.6 => /lib64/libc.so.6 (0x0000003bb1e00000)
-libdl.so.2 => /lib64/libdl.so.2 (0x0000003bb2600000)
-libcrypt.so.1 => /lib64/libcrypt.so.1 (0x0000003bbd600000)
-libz.so.1 => /lib64/libz.so.1 (0x0000003bb3200000)
-/lib64/ld-linux-x86-64.so.2 (0x0000003bb1a00000)
-libbz2.so.1 => /lib64/libbz2.so.1 (0x0000003bc4a00000)
-libfreebl3.so => /lib64/libfreebl3.so (0x0000003bbd200000)
-```
+
+	# readelf -d libcrypto.so.1.0.1e
+	Dynamic section at offset 0x1d23b0 contains 28 entries:
+	  Tag        Type                         Name/Value
+	 0x0000000000000001 (NEEDED)             Shared library: [libdl.so.2]
+	 0x0000000000000001 (NEEDED)             Shared library: [libz.so.1]
+	 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]
+	 0x000000000000000e (SONAME)             Library soname: [libcrypto.so.10]
+	 0x0000000000000010 (SYMBOLIC)           0x0
+	 0x000000000000000c (INIT)               0x3ba3a69568
+	 0x000000000000000d (FINI)               0x3ba3b5dbe8
+	 0x000000006ffffef5 (GNU_HASH)           0x3ba3a001f0
+	 0x0000000000000005 (STRTAB)             0x3ba3a21da8
+	 0x0000000000000006 (SYMTAB)             0x3ba3a09220
+	 0x000000000000000a (STRSZ)              78495 (bytes)
+	 0x000000000000000b (SYMENT)             24 (bytes)
+	 0x0000000000000003 (PLTGOT)             0x3ba3dd2fe8
+	 0x0000000000000002 (PLTRELSZ)           2664 (bytes)
+	 0x0000000000000014 (PLTREL)             RELA
+	 0x0000000000000017 (JMPREL)             0x3ba3a68b00
+	 0x0000000000000007 (RELA)               0x3ba3a37228
+	 0x0000000000000008 (RELASZ)             202968 (bytes)
+	 0x0000000000000009 (RELAENT)            24 (bytes)
+	 0x000000006ffffffc (VERDEF)             0x3ba3a37140
+	 0x000000006ffffffd (VERDEFNUM)          4
+	 0x000000006ffffffe (VERNEED)            0x3ba3a371a8
+	 0x000000006fffffff (VERNEEDNUM)         2
+	 0x000000006ffffff0 (VERSYM)             0x3ba3a35048
+	 0x000000006ffffff9 (RELACOUNT)          8446
+	 0x000000006ffffdf8 (CHECKSUM)           0x5b6c6280
+	 0x000000006ffffdf5 (GNU_PRELINKED)      2015-10-16T19:35:45
+	 0x0000000000000000 (NULL)               0x0
+	 
+	 # ldd vmdkbkp
+	linux-vdso.so.1 =>  (0x00007fffebbff000)
+	libvmdkbkp.so => /root/vmbkp-master/vmdkbkp/src/./libvmdkbkp.so (0x00007fe9f1298000)
+	libvixDiskLib.so.5 => /usr/lib/vmware-vix-disklib/lib64/libvixDiskLib.so.5 (0x00007fe9f0eaa000)
+	libboost_iostreams-mt.so.1.48.0 => /usr/lib64/libboost_iostreams-mt.so.1.48.0 (0x00007fe9f0c7e000)
+	librt.so.1 => /lib64/librt.so.1 (0x0000003344c00000)
+	libcrypto.so.10 => /usr/lib64/libcrypto.so.10 (0x0000003ba3a00000)
+	libboost_thread-mt.so.1.48.0 => /usr/lib64/libboost_thread-mt.so.1.48.0 (0x00007fe9f0a63000)
+	libpthread.so.0 => /lib64/libpthread.so.0 (0x00000036eee00000)
+	libstdc++.so.6 => /usr/lib64/libstdc++.so.6 (0x0000003bbde00000)
+	libm.so.6 => /lib64/libm.so.6 (0x0000003bb2e00000)
+	libgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x0000003bbda00000)
+	libc.so.6 => /lib64/libc.so.6 (0x0000003bb1e00000)
+	libdl.so.2 => /lib64/libdl.so.2 (0x0000003bb2600000)
+	libcrypt.so.1 => /lib64/libcrypt.so.1 (0x0000003bbd600000)
+	libz.so.1 => /lib64/libz.so.1 (0x0000003bb3200000)
+	/lib64/ld-linux-x86-64.so.2 (0x0000003bb1a00000)
+	libbz2.so.1 => /lib64/libbz2.so.1 (0x0000003bc4a00000)
+	libfreebl3.so => /lib64/libfreebl3.so (0x0000003bbd200000)
+
 
 ### 3. open the flag about [core dump](http://www.akadia.com/services/ora_enable_core.html)
-```
-// show the core dump status
-ulimit -c
-// set it to unlimited
-ulimit -c unlimited
-```
+
+	// show the core dump status
+	ulimit -c
+	// set it to unlimited
+	ulimit -c unlimited
+
     
 ### 4. how to find the issue
 1. check the call stack using gdb, find the segment falut in the libcrypto called by function belong to vmware
