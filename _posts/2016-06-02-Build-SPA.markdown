@@ -9,6 +9,9 @@ tags: yo grunt angular performance
 * content
 {:toc}
 
+![Yo](http://yeoman.io/static/tool-yo.4ed95cac73.png)
+
+
 
 
 ## [Yeoman](http://yeoman.io/): SetUp the application Frame
