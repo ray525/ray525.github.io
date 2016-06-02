@@ -2,14 +2,12 @@
 layout: post
 title:  "Grunt"
 date:   2016-06-02 13:32:00
-categories: Grunt
+categories: web
+tags: grunt
 ---
 
 * content
 {:toc}
-
-
-
 
 
 
@@ -29,75 +27,73 @@ The Grunt ecosystem is huge and it's growing every day. With literally hundreds 
 
 1. wrapper function
 
-    ```
-    module.exports = function(grunt) {
-    }
-    ```
+		module.exports = function(grunt) {
+		}
+
 2. configuration
     The configuration object for a task lives as a property on the configuration object, that's named the same as the task. So the "concat" task goes in our config object under the "concat" key.
 
-    ```
-    grunt.initConfig({
-    });
-    ```
+		grunt.initConfig({
+		});
+		
 3. the entire Gruntfile.js
-    ```
-    module.exports = function(grunt) {
     
-      grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json'),
-        concat: {
-          options: {
-            separator: ';'
-          },
-          dist: {
-            src: ['src/**/*.js'],
-            dest: 'dist/<%= pkg.name %>.js'
-          }
-        },
-        uglify: {
-          options: {
-            banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
-          },
-          dist: {
-            files: {
-              'dist/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
-            }
-          }
-        },
-        qunit: {
-          files: ['test/**/*.html']
-        },
-        jshint: {
-          files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
-          options: {
-            // options here to override JSHint defaults
-            globals: {
-              jQuery: true,
-              console: true,
-              module: true,
-              document: true
-            }
-          }
-        },
-        watch: {
-          files: ['<%= jshint.files %>'],
-          tasks: ['jshint', 'qunit']
-        }
-      });
-    
-      grunt.loadNpmTasks('grunt-contrib-uglify');
-      grunt.loadNpmTasks('grunt-contrib-jshint');
-      grunt.loadNpmTasks('grunt-contrib-qunit');
-      grunt.loadNpmTasks('grunt-contrib-watch');
-      grunt.loadNpmTasks('grunt-contrib-concat');
-    
-      grunt.registerTask('test', ['jshint', 'qunit']);
-    
-      grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
-    
-    };
-    ```
+		module.exports = function(grunt) {
+		
+		  grunt.initConfig({
+			pkg: grunt.file.readJSON('package.json'),
+			concat: {
+			  options: {
+				separator: ';'
+			  },
+			  dist: {
+				src: ['src/**/*.js'],
+				dest: 'dist/<%= pkg.name %>.js'
+			  }
+			},
+			uglify: {
+			  options: {
+				banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
+			  },
+			  dist: {
+				files: {
+				  'dist/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
+				}
+			  }
+			},
+			qunit: {
+			  files: ['test/**/*.html']
+			},
+			jshint: {
+			  files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
+			  options: {
+				// options here to override JSHint defaults
+				globals: {
+				  jQuery: true,
+				  console: true,
+				  module: true,
+				  document: true
+				}
+			  }
+			},
+			watch: {
+			  files: ['<%= jshint.files %>'],
+			  tasks: ['jshint', 'qunit']
+			}
+		  });
+		
+		  grunt.loadNpmTasks('grunt-contrib-uglify');
+		  grunt.loadNpmTasks('grunt-contrib-jshint');
+		  grunt.loadNpmTasks('grunt-contrib-qunit');
+		  grunt.loadNpmTasks('grunt-contrib-watch');
+		  grunt.loadNpmTasks('grunt-contrib-concat');
+		
+		  grunt.registerTask('test', ['jshint', 'qunit']);
+		
+		  grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify']);
+		
+		};
+     
 4. [Configuring tasks](http://gruntjs.com/configuring-tasks)
     Globbing patterns
     
@@ -107,9 +103,13 @@ The Grunt ecosystem is huge and it's growing every day. With literally hundreds 
     
     > 
     `*` matches any number of characters, but not /
+	>
     `?` matches a single character, but not /
+	>
     `**` matches any number of characters, including /, as long as it's the only thing in a path part
+	>
     `{}` allows for a comma-separated list of "or" expressions
+	>
     `!` at the beginning of a pattern will negate the match
     
     All most people need to know is that `foo/*.js` will match all files ending with `.js` in the `foo/` subdirectory, but `foo/**/*.js` will match all files ending with `.js` in the `foo/` subdirectory and all of its subdirectories.
@@ -117,65 +117,69 @@ The Grunt ecosystem is huge and it's growing every day. With literally hundreds 
     Also, in order to simplify otherwise complicated globbing patterns, Grunt allows arrays of file paths or globbing patterns to be specified. Patterns are processed in-order, with !-prefixed matches excluding matched files from the result set. The result set is uniqued.
     
     For example:
-    ```
-    // You can specify single files:
-    {src: 'foo/this.js', dest: ...}
-    // Or arrays of files:
-    {src: ['foo/this.js', 'foo/that.js', 'foo/the-other.js'], dest: ...}
-    // Or you can generalize with a glob pattern:
-    {src: 'foo/th*.js', dest: ...}
-    
-    // This single node-glob pattern:
-    {src: 'foo/{a,b}*.js', dest: ...}
-    // Could also be written like this:
-    {src: ['foo/a*.js', 'foo/b*.js'], dest: ...}
-    
-    // All .js files, in foo/, in alpha order:
-    {src: ['foo/*.js'], dest: ...}
-    // Here, bar.js is first, followed by the remaining files, in alpha order:
-    {src: ['foo/bar.js', 'foo/*.js'], dest: ...}
-    
-    // All files except for bar.js, in alpha order:
-    {src: ['foo/*.js', '!foo/bar.js'], dest: ...}
-    // All files in alpha order, but with bar.js at the end.
-    {src: ['foo/*.js', '!foo/bar.js', 'foo/bar.js'], dest: ...}
-    
-    // Templates may be used in filepaths or glob patterns:
-    {src: ['src/<%= basename %>.js'], dest: 'build/<%= basename %>.min.js'}
-    // But they may also reference file lists defined elsewhere in the config:
-    {src: ['foo/*.js', '<%= jshint.all.src %>'], dest: ...}
-    ```
+     
+		// You can specify single files:
+		{src: 'foo/this.js', dest: ...}
+		// Or arrays of files:
+		{src: ['foo/this.js', 'foo/that.js', 'foo/the-other.js'], dest: ...}
+		// Or you can generalize with a glob pattern:
+		{src: 'foo/th*.js', dest: ...}
+		
+		// This single node-glob pattern:
+		{src: 'foo/{a,b}*.js', dest: ...}
+		// Could also be written like this:
+		{src: ['foo/a*.js', 'foo/b*.js'], dest: ...}
+		
+		// All .js files, in foo/, in alpha order:
+		{src: ['foo/*.js'], dest: ...}
+		// Here, bar.js is first, followed by the remaining files, in alpha order:
+		{src: ['foo/bar.js', 'foo/*.js'], dest: ...}
+		
+		// All files except for bar.js, in alpha order:
+		{src: ['foo/*.js', '!foo/bar.js'], dest: ...}
+		// All files in alpha order, but with bar.js at the end.
+		{src: ['foo/*.js', '!foo/bar.js', 'foo/bar.js'], dest: ...}
+		
+		// Templates may be used in filepaths or glob patterns:
+		{src: ['src/<%= basename %>.js'], dest: 'build/<%= basename %>.min.js'}
+		// But they may also reference file lists defined elsewhere in the config:
+		{src: ['foo/*.js', '<%= jshint.all.src %>'], dest: ...}
+     
     For more on glob pattern syntax, see the node-glob and minimatch documentation.
 
 ## [Plugin](http://gruntjs.com/plugins)
+
 ### wiredep
+
 1. Inject Bower packages into your source code with Grunt.
 2. This plug-in uses wiredep, which takes a look at all of the components you have, then determines the best order to inject your scripts in to your HTML file.
 Putting script tags that aren't managed by grunt-wiredep is not advised, as anything between <\!-- bower:js --> and <\!-- endbower --> will be overwritten with each command.
 3. example:
-    ```
-    For JavaScript dependencies, pop this in your HTML file:
-    
-        <!-- bower:js -->
-        <!-- endbower -->
-    
-    Install a Bower component:
-        bower install jquery --save
-    
-    Call the Grunt task:
-        grunt wiredep
-    
-    You're in business!
-    
-        <!-- bower:js -->
-        <script src="bower_components/jquery/jquery.js"></script>
-        <!-- endbower -->
-    ```
+     
+		For JavaScript dependencies, pop this in your HTML file:
+		
+			<!-- bower:js -->
+			<!-- endbower -->
+		
+		Install a Bower component:
+			bower install jquery --save
+		
+		Call the Grunt task:
+			grunt wiredep
+		
+		You're in business!
+		
+			<!-- bower:js -->
+			<script src="bower_components/jquery/jquery.js"></script>
+			<!-- endbower -->
+     
 ### [useminPrepare](https://www.npmjs.com/package/grunt-usemin)
+
 > $ npm install grunt-usemin --save-dev
 
+
 1. introduction
-    usemin replaces the references of scripts, stylesheets and other assets within HTML files dynamically with optimized versions of them. To do this usemin exports 2 built-in tasks called **useminPrepare** and **usemin** and utilizes a couple of other Grunt plugins for the optimization process. usemin does this by generating the subtasks for these Grunt plugins dynamically.
+	- usemin replaces the references of scripts, stylesheets and other assets within HTML files dynamically with optimized versions of them. To do this usemin exports 2 built-in tasks called **useminPrepare** and **usemin** and utilizes a couple of other Grunt plugins for the optimization process. usemin does this by generating the subtasks for these Grunt plugins dynamically.
 
 2. The built-in tasks of usemin:
     * useminPrepare:
@@ -191,71 +195,76 @@ Putting script tags that aren't managed by grunt-wiredep is not advised, as anyt
         * uglify minifies JS files.
         * cssmin minifies CSS files.
         * filerev revisions static assets through a file content hash.
+
 3. The useminPrepare task
-   Internally, the task parses your HTML markup to find each of these blocks, and initializes the corresponding Grunt config for the **concat / uglify** tasks when type=js, the **concat / cssmin** tasks when type=css. 
-    ```
-    <!-- build:js js/app.js -->
-    <script src="js/app.js"></script>
-    <script src="js/controllers/thing-controller.js"></script>
-    <script src="js/models/thing-model.js"></script>
-    <script src="js/views/thing-view.js"></script>
-    <!-- endbuild -->
-    
-    The produced configuration will look like:
-    
-    {
-      concat: {
-        generated: {
-          files: [
-            {
-              dest: '.tmp/concat/js/app.js',
-              src: [
-                'app/js/app.js',
-                'app/js/controllers/thing-controller.js',
-                'app/js/models/thing-model.js',
-                'app/js/views/thing-view.js'
-              ]
-            }
-          ]
-        }
-      },
-      uglify: {
-        generated: {
-          files: [
-            {
-              dest: 'dist/js/app.js',
-              src: [ '.tmp/concat/js/app.js' ]
-            }
-          ]
-        }
-      }
-    }
-    ```
+   - Internally, the task parses your HTML markup to find each of these blocks, and initializes the corresponding Grunt config for the **concat / uglify** tasks when type=js, the **concat / cssmin** tasks when type=css. 
+     
+			<!-- build:js js/app.js -->
+			<script src="js/app.js"></script>
+			<script src="js/controllers/thing-controller.js"></script>
+			<script src="js/models/thing-model.js"></script>
+			<script src="js/views/thing-view.js"></script>
+			<!-- endbuild -->
+		
+		The produced configuration will look like:
+
+			// configfile
+			{
+			  concat: {
+				generated: {
+				  files: [
+					{
+					  dest: '.tmp/concat/js/app.js',
+					  src: [
+						'app/js/app.js',
+						'app/js/controllers/thing-controller.js',
+						'app/js/models/thing-model.js',
+						'app/js/views/thing-view.js'
+					  ]
+					}
+				  ]
+				}
+			  },
+			  uglify: {
+				generated: {
+				  files: [
+					{
+					  dest: 'dist/js/app.js',
+					  src: [ '.tmp/concat/js/app.js' ]
+					}
+				  ]
+				}
+			  }
+			}
+			
 4. The usemin task
     The usemin task has 2 actions:
     * First it replaces all the blocks with a single "summary" line, pointing to a file creating by the transformation flow.
     * Then it looks for references to assets (i.e. images, scripts, ...), and tries to replace them with their revved version if it can find one on disk
-    
- ```
-    usemin: {
-  js: '*.js',
-  options: {
-    assetsDirs: 'images',
-    patterns: {
-      js: [
-        [/(image\.png)/, 'Replacing reference to image.png']
-      ]
-    }
-  }
-}
- ```
+  
+		  usemin: {
+		  js: '*.js',
+		  options: {
+			assetsDirs: 'images',
+			patterns: {
+			  js: [
+				[/(image\.png)/, 'Replacing reference to image.png']
+			  ]
+			}
+		  }
+		}
+  
  
 5. summary
-* useminPrepare
-useminPrepare is trying to prepare the right configuration for the pipeline of actions that are going to be applied on the blocks (for example concatenation and uglify-cation). As such it needs to have the input directory, temporary directories (staging) and destination directory. The files referenced in the block are either absolute or relative (/images/foo.png or ../../images/foo.png). Absolute files references are looked in a given set of search path (input), which by default is set to the directory where the html/css file examined is located (can be overridden per block, or more generally through root option). Relative files references are also looked at from location of the examined file, unless stated otherwise.
+	* useminPrepare
 
-* usemin
-usemin target replaces references to images, scripts, css, ... in the furnished files (html, css, ...). These references may be either absolute (i.e. /images/foo.png) or relative (i.e. image/foo.png or ../images/foo.png). When the reference is absolute a set of asset search paths should be looked at under the destination directory (for example, using the previous example, and searchpath equal to ['assets'], usemin would try to find either a revved version of the image of the image below the assets directory: for example dest/assets/images/foo.1223443.png). When the reference is relative, by default the referenced item is looked in the path relative to the current file location in the destination directory (e.g. with the preceding example, if the file is build/bar/index.html, then transformed index.html will be in dist/bar, and usemin will look for dist/bar/../images/foo.32323.png). 
+
+		useminPrepare is trying to prepare the right configuration for the pipeline of actions that are going to be applied on the blocks (for example concatenation and uglify-cation). As such it needs to have the input directory, temporary directories (staging) and destination directory. The files referenced in the block are either absolute or relative (/images/foo.png or ../../images/foo.png). Absolute files references are looked in a given set of search path (input), which by default is set to the directory where the html/css file examined is located (can be overridden per block, or more generally through root option). Relative files references are also looked at from location of the examined file, unless stated otherwise.
+
+	* usemin
+
+
+		usemin target replaces references to images, scripts, css, ... in the furnished files (html, css, ...). These references may be either absolute (i.e. /images/foo.png) or relative (i.e. image/foo.png or ../images/foo.png). When the reference is absolute a set of asset search paths should be looked at under the destination directory (for example, using the previous example, and searchpath equal to ['assets'], usemin would try to find either a revved version of the image of the image below the assets directory: for example dest/assets/images/foo.1223443.png). When the reference is relative, by default the referenced item is looked in the path relative to the current file location in the destination directory (e.g. with the preceding example, if the file is build/bar/index.html, then transformed index.html will be in dist/bar, and usemin will look for dist/bar/../images/foo.32323.png). 
 
 ### concurrent
 Run grunt tasks concurrently
@@ -265,52 +274,56 @@ This project has been deprecated in favour of grunt-postcss.
 Apply several post-processors to your CSS using PostCSS.
 
 ### [ngtemplates](https://www.npmjs.com/package/grunt-angular-templates)
+
 1. introduction
     Speed up your AngularJS app by automatically minifying, combining, and automatically caching your HTML templates with $templateCache.
 
     Here's an example of the output created by this task from multiple .html files:
-    ```
-    angular.module('app').run(["$templateCache", function($templateCache) {
-      $templateCache.put("home.html",
-        // contents for home.html ... 
-      );
-      ...
-      $templateCache.put("src/app/templates/button.html",
-        // contents for button.html 
-      );
-    }]);
-    ```
+     
+		angular.module('app').run(["$templateCache", function($templateCache) {
+		  $templateCache.put("home.html",
+			// contents for home.html ... 
+		  );
+		  ...
+		  $templateCache.put("src/app/templates/button.html",
+			// contents for button.html 
+		  );
+		}]);
+     
     Then, when you use ng-include or templateUrl with $routeProvider, the template is already loaded without an extra AJAX request!
     
 2. example
 Using grunt-usemin
-> usemin
-Path to <!-- build:js [path/to/output.js] --> usemin target
-This should be the output path of the compiled JS indicated in your HTML, such as path/to/output.js shown here.
+
+	> usemin
+	Path to <!-- build:js [path/to/output.js] --> usemin target
+	This should be the output path of the compiled JS indicated in your HTML, such as path/to/output.js shown here.
 
     Using the following HTML as an example:
-    ```
-    <!-- build:js dist/vendors.js -->
-    <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/angular-resource/angular-resource.js"></script>
-    <!-- endbuild -->
-    ```
+     
+		<!-- build:js dist/vendors.js -->
+		<script src="bower_components/angular/angular.js"></script>
+		<script src="bower_components/angular-resource/angular-resource.js"></script>
+		<!-- endbuild -->
+     
     Do not use the concat option, even though grunt-usemin generates a concat.generated object behind the scenes. Instead, use the usemin option to indicate the anticipated output filepath from grunt-usemin.
-    ```
-    ngtemplates:  {
-      app:        {
-        src:      '**.html',
-        dest:     'template.js',
-        options:  {
-          usemin: 'dist/vendors.js' // <~~ This came from the <!-- build:js --> block 
-        }
-      }
-    }
-    ```
+     
+		ngtemplates:  {
+		  app:        {
+			src:      '**.html',
+			dest:     'template.js',
+			options:  {
+			  usemin: 'dist/vendors.js' // <~~ This came from the <!-- build:js --> block 
+			}
+		  }
+		}
+     
 ### concat
 
 ### ngAnnotate
 Add, remove and rebuild AngularJS dependency injection annotations.
+
+
 ```
 grunt.initConfig({
     ngAnnotate: {
@@ -346,8 +359,10 @@ grunt.initConfig({
     },
 });
 ```
+
 > After executing grunt ngAnnotate, you'll get file a.js annotated and saved under the same name, file b.js annotated and saved as c.js and files d.js and e.js concatenated, annotated and saved as f.js. Annotations will be saved using single quotes.
     An annotated version of the f.js file will be saved as f.annotated.js and an annotated version of the g.js file will be saved as g.js-annotated.
+
 ### copy
 
 ### cssmin
@@ -356,6 +371,7 @@ grunt.initConfig({
 
 ### filerev
 This task will revision your files based on its **contents**. You should then set the files to expire far into the future for better caching and it will only update when it changes.
+ 
 ```
 grunt.initConfig({
   filerev: {
@@ -369,12 +385,14 @@ grunt.initConfig({
   },
 })
 ```
+
 ### usemin
 
 ### htmlmin
 
 ### shell
 Run shell commands
+
 ```
 grunt.initConfig({
     shell: {
@@ -407,6 +425,3 @@ uncss: {
   }
 }
 ```
-
-
-    

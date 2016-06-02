@@ -2,7 +2,8 @@
 layout: post
 title:  "Build your own SPA"
 date:   2016-06-02 13:33:00
-categories: yo angular performance
+categories: web
+tags: yo grunt angular performance
 ---
 
 * content
@@ -10,9 +11,8 @@ categories: yo angular performance
 
 
 
-
-
 ## [Yeoman](http://yeoman.io/): SetUp the application Frame
+
 ### What is yeoman ?
 Yeoman helps you to kickstart new projects, prescribing best practices and tools to help you stay productive.
 
@@ -22,18 +22,22 @@ To do so, we provide a generator ecosystem. A generator is basically a plugin th
 The Yeoman workflow comprises three types of tools for improving your productivity and satisfaction when building a web app: the scaffolding tool (yo), the build tool (Grunt, Gulp, etc) and the package manager (like Bower and npm).
 
 ![Yo](http://yeoman.io/static/tool-yo.4ed95cac73.png)
+
 [yo](https://github.com/yeoman/yo) scaffolds out a new application, writing your build configuration (e.g Gruntfile, Gulpfile) and pulling in relevant build tasks and package manager dependencies (Bower, npm) that you might need for your build.
 
 ![grunt](http://yeoman.io/static/tool-grunt.7b215be30d.png)
+
 The **Build System** is used to build, preview and test your project. [Grunt](http://gruntjs.com/) and [Gulp](http://gulpjs.com/) are two popular options.
 
 ![package manager](http://yeoman.io/static/tool-bower.dad9271124.png)
+
 The **Package Manager** is used for dependency management, so that you no longer have to manually download and manage your scripts. [Bower](http://bower.io/) and [npm](https://www.npmjs.com/) are two popular options.
 
 ### How to Scaffold out our SPA using [generator-angular](https://github.com/yeoman/generator-angular#readme)
 For step-by-step instructions on using Yeoman and this generator to build a TODO AngularJS application from scratch see [this tutorial.](http://yeoman.io/codelab/)
 
 Install `yo`, `grunt-cli`, `bower`, `generator-angular` and `generator-karma`:
+
 ```
 npm install -g grunt-cli bower yo generator-karma generator-angular
 ```
@@ -42,16 +46,19 @@ If you are planning on using Sass, you will need to first install Ruby and Compa
 
 - Install Ruby by downloading from [here](http://rubyinstaller.org/downloads/) or use Homebrew
 - Install the compass gem:
+
 ```
 gem install compass
 ```
 
 Make a new directory, and `cd` into it:
+
 ```
 mkdir my-new-project && cd $_
 ```
 
 Run `yo angular`, optionally passing an app name:
+
 ```
 yo angular [app-name]
 ```
@@ -59,9 +66,11 @@ yo angular [app-name]
 Run `grunt` for building and `grunt serve` for preview
 
 It looks like this:
+
 ![final](http://yeoman.io/static/image_11.68133ced9f.png)
 
 ## Grunt: build, preview, test your project
+
 ### Why we need to build ?
 - [Improve the website performance:](http://www.hongkiat.com/blog/ultimate-guide-to-web-optimization-tips-best-practices/)
     - server-side optimization
@@ -96,13 +105,13 @@ It looks like this:
     6. Optimize images
         - you need to focus on three things: size, format and the src attribute
             In HTML, the code for an image includes this:
-
-            ```
-            <img src=””>
-            ```
+			
+				<img src=””>
+				
             When there’s no source in the quotation marks, the browser makes a request to the directory of the page or to the actual page itself. This can add unnecessary traffic to your servers and even corrupt user data.
-            - Combine images into sprites
-                This is a really useful technique that combines commonly used images into a single image file, thus reducing the number of HTTP request that are required to download the webpage. This feature is implemented through proper use of the CSS background-image and background-position properties.
+            
+		- Combine images into sprites
+            This is a really useful technique that combines commonly used images into a single image file, thus reducing the number of HTTP request that are required to download the webpage. This feature is implemented through proper use of the CSS background-image and background-position properties.
             
     7. Optimize CSS Delivery
         ![inline css](https://s3.amazonaws.com/ceblog/wp-content/uploads/2015/11/inline-css-example.png)
@@ -138,7 +147,8 @@ It looks like this:
       'usemin',
       'htmlmin'
      ]);
-
+	 
+About the `Grunt` specific, please read another post named [Grunt](../Grunt/)
 
 		
     
