@@ -1,0 +1,144 @@
+---
+layout: post
+title:  "Build your own SPA"
+date:   2016-06-02 13:33:00
+categories: yo angular performance
+---
+
+* content
+{:toc}
+
+
+
+
+
+## [Yeoman](http://yeoman.io/): SetUp the application Frame
+### What is yeoman ?
+Yeoman helps you to kickstart new projects, prescribing best practices and tools to help you stay productive.
+
+To do so, we provide a generator ecosystem. A generator is basically a plugin that can be run with the `yo` command to scaffold complete projects or useful parts.
+
+### Tools
+The Yeoman workflow comprises three types of tools for improving your productivity and satisfaction when building a web app: the scaffolding tool (yo), the build tool (Grunt, Gulp, etc) and the package manager (like Bower and npm).
+
+![Yo](http://yeoman.io/static/tool-yo.4ed95cac73.png)
+[yo](https://github.com/yeoman/yo) scaffolds out a new application, writing your build configuration (e.g Gruntfile, Gulpfile) and pulling in relevant build tasks and package manager dependencies (Bower, npm) that you might need for your build.
+
+![grunt](http://yeoman.io/static/tool-grunt.7b215be30d.png)
+The **Build System** is used to build, preview and test your project. [Grunt](http://gruntjs.com/) and [Gulp](http://gulpjs.com/) are two popular options.
+
+![package manager](http://yeoman.io/static/tool-bower.dad9271124.png)
+The **Package Manager** is used for dependency management, so that you no longer have to manually download and manage your scripts. [Bower](http://bower.io/) and [npm](https://www.npmjs.com/) are two popular options.
+
+### How to Scaffold out our SPA using [generator-angular](https://github.com/yeoman/generator-angular#readme)
+For step-by-step instructions on using Yeoman and this generator to build a TODO AngularJS application from scratch see [this tutorial.](http://yeoman.io/codelab/)
+
+Install `yo`, `grunt-cli`, `bower`, `generator-angular` and `generator-karma`:
+```
+npm install -g grunt-cli bower yo generator-karma generator-angular
+```
+
+If you are planning on using Sass, you will need to first install Ruby and Compass:
+
+- Install Ruby by downloading from [here](http://rubyinstaller.org/downloads/) or use Homebrew
+- Install the compass gem:
+```
+gem install compass
+```
+
+Make a new directory, and `cd` into it:
+```
+mkdir my-new-project && cd $_
+```
+
+Run `yo angular`, optionally passing an app name:
+```
+yo angular [app-name]
+```
+
+Run `grunt` for building and `grunt serve` for preview
+
+It looks like this:
+![final](http://yeoman.io/static/image_11.68133ced9f.png)
+
+## Grunt: build, preview, test your project
+### Why we need to build ?
+- [Improve the website performance:](http://www.hongkiat.com/blog/ultimate-guide-to-web-optimization-tips-best-practices/)
+    - server-side optimization
+        - Choose a decent Web Host
+        - Host Assets Separately
+            - Try a CDN
+        - Compression with GZip
+        - Minimize Redirects
+        - Reduce DNS Lookups
+    - assets optimization
+        - Merge Multiple Javascripts into One
+        - Handling CSS (merge, external fiel)
+        - Handling Web Images (merge img to one)
+        - Compress Javascript & CSS & img (minimize)
+        - [Customize Header Expiry/Caching](https://www.httpwatch.com/httpgallery/caching/#showExample5)
+        - Off-load The Assets
+    - test your site
+        - [pagespeed](https://developers.google.com/speed/pagespeed/insights/)
+    - monitor your site
+        - [pingdom](http://tools.pingdom.com/fpt/)
+        - [奇云测](http://ce.cloud.360.cn/)
+- [10 things you can do to speed up your site](https://blog.crazyegg.com/2013/12/11/speed-up-your-website/)
+    1. Minimize HTTP Requests
+        - Streamline the number of elements on your page.
+        - Use CSS instead of images whenever possible.
+        - Combine multiple style sheets into one.
+        - Reduce scripts and put them at the bottom of the page.
+    2. Reduce server response time
+    3. Enable compression
+    4. Enable browser caching
+    5. Minify Resources
+    6. Optimize images
+        - you need to focus on three things: size, format and the src attribute
+            In HTML, the code for an image includes this:
+
+            ```
+            <img src=””>
+            ```
+            When there’s no source in the quotation marks, the browser makes a request to the directory of the page or to the actual page itself. This can add unnecessary traffic to your servers and even corrupt user data.
+            - Combine images into sprites
+                This is a really useful technique that combines commonly used images into a single image file, thus reducing the number of HTTP request that are required to download the webpage. This feature is implemented through proper use of the CSS background-image and background-position properties.
+            
+    7. Optimize CSS Delivery
+        ![inline css](https://s3.amazonaws.com/ceblog/wp-content/uploads/2015/11/inline-css-example.png)
+    8. Prioritize above-the-fold content
+    9. Reduce the number of plugins you use on your site
+    10. Reduce redirects
+    
+- [Google – Web Performance Best Practices](http://code.google.com/speed/page-speed/docs/rules_intro.html)
+- [Yahoo – Best Practices for Speeding Up Your Web Site](http://developer.yahoo.com/performance/rules.html)
+- [Steve Souders – 14 Rules for Faster-Loading Web Sites](http://stevesouders.com/hpws/rules.php)
+
+### How the browser work ?
+- [浏览器的渲染原理简介](http://coolshell.cn/articles/9666.html)
+- [How browsers work](http://taligarsiel.com/Projects/howbrowserswork1.htm)
+
+### Build task
+    grunt.registerTask('build', [
+      'clean:dist',
+      'wiredep:app',
+      'useminPrepare',
+      'concurrent:dist',
+      'ngtemplates',
+      'concat',
+      'ngAnnotate',
+      'copy:dist',
+      'shell:login',
+      'shell:mgmt',
+      'uncss',
+      'shell:rm',
+      'cssmin',
+      'uglify',
+      'filerev',
+      'usemin',
+      'htmlmin'
+     ]);
+
+
+		
+    
