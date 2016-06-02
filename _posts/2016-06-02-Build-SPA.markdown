@@ -9,9 +9,9 @@ tags: yo grunt angular performance
 * content
 {:toc}
 
-![Yo](https://raw.githubusercontent.com/ray525/ray525.github.io/master/asset/img/yo-grunt-bower.png)!
+![Yo](https://raw.githubusercontent.com/ray525/ray525.github.io/master/asset/img/yo-grunt-bower.png)
 
- yo, yo, 切糕要不要，煎饼果子来一套
+yo, yo, 切糕要不要，煎饼果子来一套
 
 
 
