@@ -9,7 +9,7 @@ tags: grunt
 * content
 {:toc}
 
-![grunt](http://yeoman.io/static/tool-grunt.7b215be30d.png)
+![grunt](https://github.com/ray525/ray525.github.io/blob/master/asset/img/grunt-small.png?raw=true)
 
 
 
