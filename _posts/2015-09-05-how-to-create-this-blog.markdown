@@ -64,7 +64,7 @@ categories: jekyll
     - instal wdm
 		<pre><code>gem install wdm</code></pre>
 
-## Test C code
+## Test Python code
 
 	#! /usr/bin/env python
 	#coding=utf-8
