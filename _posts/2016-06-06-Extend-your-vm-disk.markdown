@@ -11,7 +11,7 @@ tags: vm linux
 
 ![bomb](https://raw.githubusercontent.com/ray525/ray525.github.io/master/asset/img/bomb.png)
 
-It's going to bomb!! It's going to bomb!!
+It is going to bomb!!   It is going to bomb!!
 
 
 
