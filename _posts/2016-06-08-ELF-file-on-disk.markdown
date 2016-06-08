@@ -17,7 +17,7 @@ ELF, what do you look like???
 
 ## Source code and output
 
-```
+```c++
 #include <stdio.h>
 
 char *global_string = "abc";
@@ -41,7 +41,8 @@ int main()
 The build command is : `gcc -Wall -o0 test.c -o test`
 
 Output is :
-```
+
+```c++
 addr of global_string is 0x8049860,
 addr of global_string2 is 0x8049864,
 addr of global_num is 0x8049868,
@@ -62,11 +63,13 @@ To see the conetent, run this command: `hexdump -C test`
 The output of this command is [here](https://github.com/ray525/ray525.github.io/blob/master/asset/src/test_hexdump-C).
 
 We can see that the content are digital numbers, it is the command which can be run on the computer.
+
 ![hexdump](https://raw.githubusercontent.com/ray525/ray525.github.io/master/asset/img/hexdump.png)
 
 Look the properties of test, we can see the size is <span style="color:green">5396 = 0X1514</span>. 
 
 **NOTE:** Size on disk should be a little more than Size because of allocation units in Windows.
+
 ![test-size](https://raw.githubusercontent.com/ray525/ray525.github.io/master/asset/img/test-size.png)
 
 ### The structure of test
@@ -74,6 +77,7 @@ Look the properties of test, we can see the size is <span style="color:green">53
 #### Overview
 
 ![elf-overview](https://raw.githubusercontent.com/ray525/ray525.github.io/master/asset/img/elf-overview.png)
+
 **Note:** in our test file, there are two sections under section header table.
 
 #### Analysis
@@ -82,7 +86,9 @@ To see structure, run the command:`readefl -a test`
 The output is [here](https://github.com/ray525/ray525.github.io/blob/master/asset/src/test_readelf-a).
 
 This is the ELF header info, it will show the outline the ELF file (test):
+
 ![elf-header](https://raw.githubusercontent.com/ray525/ray525.github.io/master/asset/img/elf-header.png)
+
 We can see that:
 
 - The entry point is <span style='color:green'>0x8048340</span>, this is the address of <span style='color:green'>_start but not main</span>. We will discuss this later.
