@@ -9,7 +9,7 @@ tags: ELF linux
 * content
 {:toc}
 
-![xielunyan](https://raw.githubusercontent.com/ray525/ray525.github.io/master/asset/img/xielunyan.png)
+![xielunyan](https://raw.githubusercontent.com/ray525/ray525.github.io/master/asset/img/xielunyan.gif)
 
 ELF, what do you look like in memory???
 
