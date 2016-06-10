@@ -69,3 +69,12 @@ ELF, what do you look like in memory???
 - Segment structure
 
 	![va-structure](https://raw.githubusercontent.com/ray525/ray525.github.io/master/asset/img/va-structure.png)
+	
+## The entry point of executable file
+
+- We can get the entry point info from ELF header
+    ![entry-point](https://raw.githubusercontent.com/ray525/ray525.github.io/master/asset/img/entry-point.png)
+
+- Check the .text section, we can find the address 0x8048310 is the symbol _start[^1]
+
+[^1]: http://learn.tsinghua.edu.cn/kejian/data/77130/138627/html-chunk/ch18s05.html
