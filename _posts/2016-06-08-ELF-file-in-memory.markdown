@@ -73,6 +73,7 @@ ELF, what do you look like in memory???
 ## The entry point of executable file
 
 - We can get the entry point info from ELF header
+
     ![entry-point](https://raw.githubusercontent.com/ray525/ray525.github.io/master/asset/img/entry-point.png)
 
 - Check the .text section, we can find the address 0x8048310 is the symbol _start[^1]
