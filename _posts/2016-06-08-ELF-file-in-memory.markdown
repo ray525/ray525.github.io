@@ -37,7 +37,8 @@ ELF, what do you look like in memory???
 
 	Check the output of “hexdump -C test”, we can see that the offset of string (such as: abc, hello…) is 540+4, and we can find the string is in .rodata section.
 	![va-rodata](https://raw.githubusercontent.com/ray525/ray525.github.io/master/asset/img/va-rodata.png)
-
+	![va-rodata-gdb](https://raw.githubusercontent.com/ray525/ray525.github.io/master/asset/img/va-rodata-gdb.png)
+	
 ## VA structure of test
 
 - Segment mapping 
