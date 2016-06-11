@@ -9,9 +9,8 @@ tags: ELF linux
 * content
 {:toc}
 
-![magnifying](https://raw.githubusercontent.com/ray525/ray525.github.io/master/asset/img/magnifying.png)
 
-ELF, what do you look like???
+What is the call stack look like when called a func ?
 
 
 
