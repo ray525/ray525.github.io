@@ -315,7 +315,7 @@ tmpfs                 499M   76K  499M   1% /dev/shm
 	Performing an on-line resize of /dev/VolGroup/lv_root to 7290880 (4k) blocks.
 	The filesystem on /dev/VolGroup/lv_root is now 7290880 blocks long.
 
-#### It is donw
+#### It is done
 
 	[root@localhost ~]# df -h
 	Filesystem            Size  Used Avail Use% Mounted on
@@ -323,6 +323,11 @@ tmpfs                 499M   76K  499M   1% /dev/shm
 						   28G  6.7G   20G  26% /
 	tmpfs                 499M   72K  499M   1% /dev/shm
 	/dev/sda1             477M   52M  400M  12% /boot
+
+## Add a new virture disk
+
+refer this [post](http://blog.csdn.net/hanpengyu/article/details/7475645)
+
 
 ## Reference
 
