@@ -27,7 +27,7 @@ It is going to bomb!!   It is going to bomb!!
 ### Open the ssh on Esx
 ![ssh-esx](https://raw.githubusercontent.com/ray525/ray525.github.io/master/asset/img/ssh-esx.png)
 
-### Extend the disk[^refe]
+### Extend the disk[^refe1][^refe2]
 1. Go into the directory of the VM
 2. Extend the vmdk
 
@@ -332,4 +332,5 @@ refer this [post](http://blog.csdn.net/hanpengyu/article/details/7475645)
 ## Reference
 
 [^refe1]: http://maoa.cn/?post=421 
+
 [^refe2]: http://www.cnblogs.com/xiaoluo501395377/archive/2013/05/22/3093405.html
