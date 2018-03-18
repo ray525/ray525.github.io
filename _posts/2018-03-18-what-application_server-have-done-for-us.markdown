@@ -11,8 +11,7 @@ tags: web backend
 
 ![framework](http://static.zybuluo.com/ranger-01/g2nmyy9lxf7soes9gf1jin0q/image.png)
 
-[我在哪？ 我在干什么？](https://www.zybuluo.com/ranger-01/note/1077107)
-
+[我在哪？ 我在干什么？](https://www.zybuluo.com/ranger-01/note/948727)
 
 
 
