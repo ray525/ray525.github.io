@@ -20,7 +20,7 @@ tags: web deploy docker
 
 ### 1.1 Docker为什么轻量级
 
-![](http://mmbiz.qpic.cn/mmbiz_png/Hia4HVYXRicqHgLTBaYYiaZT02d8FqmkE11j5wPPEk028ere1yavXzrr1l8eXqHEn98vclEIzHGU5W1rWhIFIoNSA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1)
+![](http://static.zybuluo.com/ranger-01/94rppu4d2uksn5mbwd0jppw6/image_1cdf6jdf92e41pl4esk15rp10mfp.png)
 
 - Linux 操作系统由内核空间和用户空间组成
 - 内核空间是 kernel，Linux 刚启动时会加载 bootfs 文件系统，之后 bootfs 会被卸载掉。

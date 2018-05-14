@@ -9,7 +9,7 @@ tags: web deploy docker
 * content
 {:toc}
 
-![intro](http://mmbiz.qpic.cn/mmbiz_png/Hia4HVYXRicqGoHdCKcU42XBesbicBfOav44jzReKyPCXA4zHPLGmZZicFicf8LPiaC1fl4vkKAzl9aicbI1wyIBibxnpA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1)
+![intro](http://static.zybuluo.com/ranger-01/h14duilk27ip7r4wtoya7q2j/image_1cdf6eufl1najlg51lrnv9q1phi9.png)
 
 [作业部落记录](https://www.zybuluo.com/ranger-01/note/1141121)
 
@@ -150,7 +150,7 @@ tags: web deploy docker
 ![image_1cd41jhp2h3su6add31fq57362g.png-76.6kB][19]
 
 ## 4. 容器时如何工作的
-![](http://mmbiz.qpic.cn/mmbiz_png/Hia4HVYXRicqGoHdCKcU42XBesbicBfOav44jzReKyPCXA4zHPLGmZZicFicf8LPiaC1fl4vkKAzl9aicbI1wyIBibxnpA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1)
+![](http://static.zybuluo.com/ranger-01/h14duilk27ip7r4wtoya7q2j/image_1cdf6eufl1najlg51lrnv9q1phi9.png)
 
 Docker 采用的是 Client/Server 架构。客户端向服务器发送请求，服务器负责构建、运行和分发容器。客户端和服务器可以运行在同一个 Host 上，客户端也可以通过 socket 或 REST API 与远程的服务器通信。
 
