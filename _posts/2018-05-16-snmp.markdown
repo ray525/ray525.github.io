@@ -1,0 +1,260 @@
+---
+layout: post
+title:  "SNMP 简介"
+date:   2018-05-16 11:55:00
+categories: protocol 
+tags: protocol
+---
+
+* content
+{:toc}
+
+![intro](http://static.zybuluo.com/ranger-01/db07vv347e913ebeglqqx2zg/image_1c2o92g1d1mivi6ufrnacs16ju1t.png)
+
+[作业部落记录](https://www.zybuluo.com/ranger-01/note/1004221)
+
+
+
+
+## 1. 为什么会有SNMP
+随着网络的规模越来越庞大，网络中的设备种类繁多，如何对越来越复杂的网络进行有效的管理，从而提供高质量的网络服务已成为网络管理所面临的最大挑战。网络管理已成为整个网络解决方案中重要的一部分。
+
+网络管理通常包含4个要素：
+
+- 被管理节点：需要进行管理的设备。
+- 代理（Agent）：跟踪被管理设备状态的软件或硬件。
+    - Agent是驻留在被管理设备的一个软件模块，主要负责接收和处理来自NMS的请求报文，并形成响应报文，返回给NMS；在一些紧急情况下，它会主动发送trap报文，通知NMS。
+- 网络管理工作站（Manager）：是一个网络管理软件，与被管理设备中的代理（Agent）通信，可以查看这些设备的状态，以及对这些设备进行配置。
+   - NMS（Network Management Station）通常是一个独立的设备，运行网络管理应用程序。网络管理应用程序至少能够提供一个人机交互界面，网络管理员通过它完成绝大多数网络管理工作。
+- 网络管理协议：网络管理工作站和代理用来交换信息的协议。目前TCP/IP网络中应用最为广泛的协议是简单网络管理协议SNMP（Simple Network Management Protocol）。
+    - SNMP协议属于TCP/IP网络的应用层协议，用于在NMS和被管理设备间交互管理信息。
+    - 典型的，SNMP为代理使用UDP端口161，为管理站使用UDP端口162。
+
+![image_1c2o48jio1sfj1iol12g317cm9mqm.png-35.8kB][1]
+
+- NMS通过SNMP协议与设备的Agent通信，完成对MIB所标示对象的读取和修改操作，从而实现对网络设备的监控与管理。
+- SNMP是NMS与Agent之间通信的载体，通过其协议数据单元PDU（Protocol Data Unit）完成信息交换。SNMP并不负责数据的实际传输，数据交换的任务是通过UDP等传输层协议来完成的。
+- Agent是设备上的代理进程，主要工作包括与NMS通信，对设备中的MIB所标示的对象进行维护，以管理和监控设备中的各个模块。
+- MIB保存设备中各个对象的信息。通过对MIB信息的读写操作来完成对设备的监控和维护。
+
+*注： “对MIB的读取与写操作”是指对MIB所标示的对象进行get和set。相当于这个对象提供了get和set方法*
+
+## 2. SNMP简介
+
+### 2.1 [SNMP 报文](http://blog.csdn.net/eric_sunah/article/details/19557683)
+**get/set：**
+![image_1c2o92g1d1mivi6ufrnacs16ju1t.png-194.2kB][2]
+
+- 写入版本字段的是版本号减1，对于SNMP（即SNMPV1）则应写入0。
+- 共同体就是一个字符串，作为管理进程和代理进程之间的明文口令，常用的是6个字符“public”
+
+|PDU类型 |名称|
+|--|--|
+|0|	get-request|
+|1|	get-next-request|
+|2|	get-response|
+|3|	set-request|
+|4|	trap|
+
+**trap V1**
+![image_1c2o92smh5085um1hrmhdfi402a.png-92.2kB][3]
+
+**trap V2**
+![image_1c2o93b2v7hfjofo9eqs3pbj2n.png-71.1kB][4]
+
+### 2.2 SNMP 协议数据单元（PDU）
+SNMP规定了5种协议数据单元PDU（也就是SNMP报文），用于NMS与Agent的交互
+![image_1c2o4qdk11dcpd52og0ajr1vef13.png-42kB][5]
+各种报文的操作如下：
+
+- get-request：从代理进程处提取一个或多个参数值。
+- get-next-request：从代理进程处提取紧跟当前参数值的下一个参数值。
+- set-request：设置代理进程的一个或多个参数值。
+- get-response：返回的一个或多个参数值。这个操作是由代理进程发出的，它是对前面3种操作的响应。
+- trap：代理进程主动发出的报文，通知管理进程有某些事件发生。
+
+前面3种操作由NMS向Agent发出，后面2种操作由Agent向NMS发出。
+### 2.3 MIB file
+MIB以树状结构进行存储，树的叶子节点表示管理对象，它可以通过从根节点开始的一条唯一路径来识别，这也就是OID（Object Identifier）
+![image_1c2o4snnl578vue12lipt41j8d1g.png-136.2kB][6]
+
+[MIB file](http://blog.csdn.net/sdlyjzh/article/details/68065276) [语法](http://blog.csdn.net/shanzhizi/article/details/15340305)：
+
+```
+MY-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+        OBJECT-TYPE, Integer32, NOTIFICATION-TYPE, enterprises
+                     FROM SNMPv2-SMI
+;
+
+myCompany       OBJECT IDENTIFIER ::= {enterprises 42}
+
+testCount OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "A sample count of something."
+    ::= {myCompany 1}
+
+testDescription OBJECT-TYPE
+    SYNTAX OCTET STRING
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "A description of something"
+    ::= {myCompany 2}
+
+testTrap NOTIFICATION-TYPE
+    STATUS current
+    DESCRIPTION "Test notification"
+    ::= {myCompany 3}
+
+END
+```
+
+### 2.4 SNMP 协议版本
+
+SNMP协议在OSI模型的应用层（第七层）运作，在第一版中指定五种核心PDU：
+
+- GET REQUEST
+- GET NEXT REQUEST
+- GET RESPONSE
+- SET REQUEST
+- TRAP
+
+SNMP第二版加入：
+
+- GETBULK REQUEST
+- INFORM
+
+SNMP第三版提供重要的安全性功能：
+
+- 信息完整性：保证数据包在发送中没有被窜改。
+- 认证：检验信息来自正确的来源。
+- 数据包加密：避免被未授权的来源窥探。
+### 2.5 [SNMP 技术术语](http://blog.51cto.com/freeloda/1306743)
+- MIB：Management Information Base(管理信息库)，定义代理进程中所有可被查询和修改的参数。
+- SMI：Structure of Management Information(管理信息结构)，SMI定义了SNMP中使用到的ASN.1类型、语法，并定义了SNMP中使用到的类型、宏、符号等。SMI用于后续协议的描述和MIB的定义。每个版本的SNMP都可能定义自己的SMI。
+- ASN.1：Abstract Syntax Notation One(抽象语法定义)。用于定义语法的正式语言，在SNMP中定义SNMP的协议数据单元PDU和管理对象MIB的格式。SNMP只使用了ASN.1中的一部分，而且使用ASN.1的语言特性定义了一些自定义类型和类型宏 ，这些组成了SMI。
+- BER： Basic Encoding Rule，基本编码规格。描述如何将ASN.1类型的值编码为字符串的方法。
+
+## 3. SNMP 实现之：[net-snmp](http://www.net-snmp.org/)
+![image_1c2oerhcae7gq9p1n1819h11qpc34.png-155.4kB][7]
+
+### 3.1 [查看net-snmp相关package](http://blog.51cto.com/freeloda/1306743)
+
+```
+# yum list all | grep net-snmp*
+net-snmp.x86_64             1:5.5-44.el6_4.4        updates
+net-snmp-devel.i686           1:5.5-44.el6_4.4        updates
+net-snmp-devel.x86_64          1:5.5-44.el6_4.4        updates
+net-snmp-libs.i686            1:5.5-44.el6_4.4        updates
+net-snmp-libs.x86_64           1:5.5-44.el6_4.4        updates
+net-snmp-perl.x86_64           1:5.5-44.el6_4.4        updates
+net-snmp-python.x86_64          1:5.5-44.el6_4.4        updates
+net-snmp-utils.x86_64          1:5.5-44.el6_4.4        updates
+
+# rpm -qa | grep net-snmp*
+net-snmp-utils-5.5-60.el6.x86_64 
+  (snmp客户端，如snmpget)
+net-snmp-devel-5.5-60.el6.x86_64
+  （开发subagent时要用到的编译工具：net-snmp-config --compile-subagent Test Test.c）
+net-snmp-5.5-60.el6.x86_64
+  （server端：snmpd，snmptrapd）
+net-snmp-perl-5.5-60.el6.x86_64
+  （可以根据mib生成对应源代码：env MIBS="+/etc/snmp/mibs/Test-MIB.my" mib2c Test ）
+net-snmp-libs-5.5-60.el6.x86_64
+
+# rpm -ql net-snmp-utils
+/usr/bin/encode_keychange
+/usr/bin/snmpbulkget
+/usr/bin/snmpbulkwalk
+/usr/bin/snmpdelta
+/usr/bin/snmpdf
+/usr/bin/snmpget
+/usr/bin/snmptrap
+...
+...
+```
+
+### 3.2 [net-snmp扩展](http://chichangjing.github.io/2016/02/03/net-snmp-develop.html)[MIB](http://blog.csdn.net/hepeng597/article/details/8782868)
+用net-snmp扩展MIB库，实现方法可归结为四种：
+
+1）一是静态库方式，通过修改配置头文件，在相应地方包含新引入的mib模块的.c和.h文件，然后重新编译库文件和扩展代码；这种方式不够灵活，每次修改扩展的MIB后，都需要重新编译snmpd和扩展的代码，再重新安装snmpd到系统中。
+
+2）二是编译动态共享库，只需把新引入的MIB模块的.c和.h文件编译成动态库，通过设置能够让代理程序载入。
+
+对于第二种方式，一需要编译成.so动态共享库，二需要原代理程序是否包含dlmod或load命令，三还要看系统是否支持。一般情况下仅支持Unix平台。
+
+3）三是扩展一个子代理，让SNMPD以主代理的模式运行，对于SNMPD我们只要让它启动就可以，不需要任何的更改和配置，把子代理编译生成的程序运行起来就可以扩展自定义的MIB库。
+
+4）用shell脚本来扩展
+
+### 3.3 snmp常用命令
+[snmp](https://www.mkssoftware.com/docs/man1/snmptranslate.1.asp)[translate](http://net-snmp.sourceforge.net/wiki/index.php/TUT:snmptranslate)
+
+```
+% snmptranslate .iso.3.6.1.private.enterprises.2021.2.1.prNames.0
+    NET-SNMP-MIB::prNames.0
+    # http://www.oidview.com/mibs/0/SNMPv2-MIB.html
+ % snmptranslate -On .iso.3.6.1.private.enterprises.2021.2.1.prNames.0
+     .1.3.6.1.4.1.2021.2.1.2.0
+ % snmptranslate -Of .iso.3.6.1.private.enterprises.2021.2.1.prNames.0
+     .iso.org.dod.internet.private.enterprises.ucdavis.procTable.prEntry.prNames.0
+ 
+# Specifying a MIB object
+% snmptranslate sysUpTime.0
+   Invalid object identifier: sysUpTime.0
+% snmptranslate -IR sysUpTime.0
+   SNMPv2-MIB::sysUpTime.0
+% snmptranslate -On -Td -IR sysUpTime
+% snmptranslate -On -Td -Ib 'sys.*ime'
+% snmptranslate -Tp -IR system
+```
+`net-snmp-config`
+
+```
+# net-snmp-config | grep display
+    --version         displays the net-snmp version number
+    --indent-options  displays the indent options from the Coding Style
+    --debug-tokens    displays a example command line to search to source
+    --configure-options   display original configure arguments
+    --prefix              display the installation prefix
+    --snmpd-module-list   display the modules compiled into the agent
+    --default-mibs        display default list of MIBs
+    --default-mibdirs     display default list of MIB directories
+    --snmpconfpath        display default SNMPCONFPATH
+    --persistent-directory display default persistent directory
+    --perlprog            display path to perl for the perl modules
+
+```
+
+### 3.4 [net-snmp FAQ](http://www.net-snmp.org/docs/FAQ.html#Why_aren_t_my_MIB_files_being_read_in_)
+
+## 4. [SNMP 实现之](http://www.nealc.com/blog/blog/2013/02/23/writing-an-snmp-agent-with-a-custom-mib-using-pysnmp/)：[pysnmp](https://github.com/etingof/pysnmp/blob/master/examples/v3arch/asyncore/agent/ntforg/v2c-trap.py)
+
+### 4.1 依赖
+1. [build-pysnmp-mib](http://pkgs.loginroot.com/errors/notFound/build-pysnmp-mib)
+    
+    ```
+    yum install pysnmp
+    apt-get install python-pysnmp4
+    ```
+2. pysnmp: `pip isntall pysnmp`
+
+### 4.2 write an snmp agent
+1. 写mib file: MY-MIB.txt
+2. 检查mib file是否正确(在ubuntu上有这个命令)：`smilint ./MY-MIB -s`
+3. convert mib to python module `build-pysnmp-mib -o MY-MIB.py MY-MIB`
+4. write agent code
+5. start snmptrapd（注意调整snmptrapd config）: `snmptrapd -f -Lo`
+5. get info from agent: `snmpwalk -m MY-MIB -v 2c -c public localhost .1`
+
+
+  [1]: http://static.zybuluo.com/ranger-01/bckggwm1cqzkn3s97wwf7mg2/image_1c2o48jio1sfj1iol12g317cm9mqm.png
+  [2]: http://static.zybuluo.com/ranger-01/db07vv347e913ebeglqqx2zg/image_1c2o92g1d1mivi6ufrnacs16ju1t.png
+  [3]: http://static.zybuluo.com/ranger-01/xfn4wwtxx4uabbbuuamxms7u/image_1c2o92smh5085um1hrmhdfi402a.png
+  [4]: http://static.zybuluo.com/ranger-01/ptbc79pm776aew2hg5or6632/image_1c2o93b2v7hfjofo9eqs3pbj2n.png
+  [5]: http://static.zybuluo.com/ranger-01/p0ui27lnkymxyt3tyu408y32/image_1c2o4qdk11dcpd52og0ajr1vef13.png
+  [6]: http://static.zybuluo.com/ranger-01/mw7axvz6jg7db20uuli7pjwe/image_1c2o4snnl578vue12lipt41j8d1g.png
+  [7]: http://static.zybuluo.com/ranger-01/f16ysciuifwxqul6jsz13a7t/image_1c2oerhcae7gq9p1n1819h11qpc34.png
