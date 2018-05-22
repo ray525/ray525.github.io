@@ -1,0 +1,197 @@
+---
+layout: post
+title:  "跨域请求"
+date:   2018-05-22 21:09:00
+categories: web 
+tags: cors
+---
+
+* content
+{:toc}
+
+![intro](http://static.zybuluo.com/ranger-01/bhnfe850i9wu66t5g1jebbjh/image_1ce3vkv3eoj9nqa13qd1eqc1c412a.png)
+
+[作业部落记录](https://www.zybuluo.com/ranger-01/note/1157092)
+
+
+
+
+## 1. Same Origin Policy
+
+理解跨域首先必须要了解同源策略。同源策略是浏览器上为安全性考虑实施的非常重要的安全策略。
+
+- 何谓同源:
+
+    URL由协议、域名、端口和路径组成，如果两个URL的协议、域名和端口相同，则表示他们同源。
+	
+```javascript
+URL                           说明                    是否允许通信
+http://www.a.com/a.js
+http://www.a.com/b.js         同一域名下               允许
+http://www.a.com/lab/a.js
+http://www.a.com/script/b.js  同一域名下不同文件夹      允许
+http://www.a.com:8000/a.js
+http://www.a.com/b.js         同一域名，不同端口        不允许
+http://www.a.com/a.js
+https://www.a.com/b.js        同一域名，不同协议        不允许
+http://www.a.com/a.js
+http://70.32.92.74/b.js       域名和域名对应ip         不允许
+http://www.a.com/a.js
+http://script.a.com/b.js      主域相同，子域不同        不允许（cookie这种情况下也不允许访问）
+http://www.a.com/a.js
+http://a.com/b.js             同一域名，不同二级域名（同上） 不允许（cookie这种情况下也不允许访问）
+http://www.cnblogs.com/a.js
+http://www.a.com/b.js         不同域名                  不允许
+```
+
+- 同源策略:
+
+    浏览器的同源策略，限制了来自不同源的"document"或脚本，对当前"document"读取或设置某些属性。 
+    
+	从一个域上加载的脚本不允许访问另外一个域的文档属性。
+    
+	>举个例子：
+    比如一个恶意网站的页面通过iframe嵌入了银行的登录页面（二者不同源），如果没有同源限制，恶意网页上的javascript脚本就可以在用户登录银行的时候获取用户名和密码。
+    在浏览器中，`<script>、<img>、<iframe>、<link>`等标签都可以加载跨域资源，而不受同源限制。**JSONP实现跨域就是利用了这一点。**
+
+## 2. Cros Origin
+
+### 2.1 document.domain
+
+- 修改document.domain的方法只适用于不同子域的框架间的交互。
+
+- 有跨域问题
+
+	有一个页面，它的地址是http://www.damonare.cn/a.html 
+
+```javascript
+<script type="text/javascript">
+	function test(){
+		var iframe = document.getElementById('￼ifame');
+		var win = document.contentWindow;//可以获取到iframe里的window对象，但该window对象的属性和方法几乎是不可用的
+		var doc = win.document;//这里获取不到iframe里的document对象
+		var name = win.name;//这里同样获取不到window对象的name属性
+	}
+</script>
+<iframe id = "iframe" src="http://damonare.cn/b.html" onload = "test()"></iframe>
+```
+
+- 用document.domain解决
+
+```javascript
+// 在页面http://www.damonare.cn/a.html 中
+<iframe id = "iframe" src="http://damonare.cn/b.html" onload = "test()"></iframe>
+<script type="text/javascript">
+    document.domain = 'damonare.cn';//设置成主域
+    function test(){
+        alert(document.getElementById('￼iframe').contentWindow);//contentWindow 可取得子窗口的 window 对象
+    }
+</script>
+
+// 在页面http://damonare.cn/b.html 中也设置document.domain:
+<script type="text/javascript">
+    document.domain = 'damonare.cn';//在iframe载入这个页面也设置document.domain，使之与主页面的document.domain相同
+</script>
+```
+
+### 2.2 JSONP(json padding)
+
+利用`<script>`标签没有跨域限制的“漏洞”（历史遗迹啊）来达到与第三方通讯的目的
+
+- 前端代码
+
+```javascript
+// jQuery
+$.ajax({
+  url: "http://tonghuashuo.github.io/test/jsonp.txt",
+  dataType: 'jsonp',
+  jsonp: "callback",
+  jsonpCallback: "dosomething"
+})
+.done(function(res) {
+  console.log("success");
+  console.log(res);
+})
+.fail(function(res) {
+  console.log("error");
+  console.log(res);
+});
+
+// js
+<script>
+
+  // 实现回调函数，这里没有了 jQuery 的封装，必须手动指定并实现
+  var dosomething = function(data){
+      console.log(data);
+  };
+
+  // 提供 JSONP 服务的 URL 地址，查询字符串中加入 callback 指定回调函数
+  var url = "tonghuashuo.github.io/test/jsonp.txt?callback=docomething";
+
+  // 创建 <script> 标签，设置其 src 属性
+  var script = document.createElement('script');
+  script.setAttribute('src', url);
+
+  // 把 <script> 标签加入 <body> 尾部，此时调用开始。
+  document.getElementsByTagName('body')[0].appendChild(script);
+
+  // 因为目标 URL 是一个后台脚本，访问后会被执行，返回的 JSON 被包裹在回调函数中以字符串的形式被返回。
+  // 返回的字符串放入 <script> 中就成为了一个普通的函数调用，执行回调函数，返回的 JSON 数据作为实参被传给了回调函数。
+</script>
+```
+
+- 后端代码
+
+```php
+$result   = "{'data':'JSONP Works'}"; // 这里省略了数据库查询等操作，直接给出返回值
+$callback = $_GET['callback'];        // 最好加上判空和默认值，以防拿不到参数
+echo $callback."(".$result.")";
+
+// 返回的结果
+// dosomething({"data":"JSONP Works"});
+```
+
+### 2.3 CORS
+
+整个CORS通信过程，都是浏览器自动完成，不需要用户参与。实现CORS通信的关键是服务器。只要服务器实现了CORS接口，就可以跨源通信。
+
+- 两种请求
+
+    浏览器将CORS请求分成两类：简单请求（simple request）和非简单请求（not-so-simple request）。
+    只要同时满足以下两大条件，就属于简单请求。
+    ![image_1ce3v1bta17ln1i1a1adl1pq4r2m9.png-30.3kB][2]
+
+
+- 简单请求
+    
+    对于简单请求，浏览器直接发出CORS请求
+    
+    - `CORS_ORIGIN_WHITELIST`不包含origin
+    ![image_1ce3v3h3k1knf1158s551rui1nd6m.png-175kB][3]
+
+    - `CORS_ORIGIN_WHITELIST`包含origin.
+    ![image_1ce3v8a33k2v1m4v1qmrjgv14it13.png-48.8kB][4]
+    
+    
+- 非简单请求
+    
+    非简单请求的CORS请求，会在正式通信之前，增加一次HTTP查询请求，称为"预检"请求（preflight）。
+    
+    - `CORS_ALLOW_METHODS`不包含header rainbow
+    ![image_1ce3vc3ii1hoi1fm9rcg1a2s1p0p1g.png-158.4kB][5]
+    
+    - `CORS_ALLOW_METHODS`包含header rainbow
+    ![image_1ce3vd46r4r6u1q1k5f1r5i1o2i1t.png-110.2kB][6]
+
+## 3. 参考链接
+1. [前端跨域知识总结](http://web.jobbole.com/88519/)
+2. [跨域资源共享 CORS 详解](http://www.ruanyifeng.com/blog/2016/04/cors.html)
+3. [django-cors-headers](https://github.com/ottoyiu/django-cors-headers)
+
+
+  [1]: http://static.zybuluo.com/ranger-01/bhnfe850i9wu66t5g1jebbjh/image_1ce3vkv3eoj9nqa13qd1eqc1c412a.png
+  [2]: http://static.zybuluo.com/ranger-01/0e6exp7d2ufybef1ienpenev/image_1ce3v1bta17ln1i1a1adl1pq4r2m9.png
+  [3]: http://static.zybuluo.com/ranger-01/2u8n56s9z4j6pur67v3rq4gd/image_1ce3v3h3k1knf1158s551rui1nd6m.png
+  [4]: http://static.zybuluo.com/ranger-01/3pq1ldkhxk6765c5gi1qmhyp/image_1ce3v8a33k2v1m4v1qmrjgv14it13.png
+  [5]: http://static.zybuluo.com/ranger-01/29id3ahby9yi2mdccgabv08k/image_1ce3vc3ii1hoi1fm9rcg1a2s1p0p1g.png
+  [6]: http://static.zybuluo.com/ranger-01/n7t0r7igb1fts4w5ojv1sq7t/image_1ce3vd46r4r6u1q1k5f1r5i1o2i1t.png
